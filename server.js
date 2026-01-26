@@ -8,19 +8,26 @@ const app = express();
 
 /* -------------------------------------------------------
    CORS（完全版）
-   - GitHub Pages からのアクセスを許可
-   - OPTIONS（プリフライト）も許可
 ------------------------------------------------------- */
 app.use(
   cors({
-    origin: "*", // 必要なら GitHub Pages の URL に限定してもOK
+    origin: "*",
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// プリフライト（OPTIONS）を確実に返す
-app.options("*", cors());
+// ★ ここを追加（Vercel のプリフライト対策）
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  next();
+});
 
 /* -------------------------------------------------------
    JSON パース
@@ -29,7 +36,6 @@ app.use(express.json({ limit: "10mb" }));
 
 /* -------------------------------------------------------
    ルーティング
-   /api/... に統一
 ------------------------------------------------------- */
 const generateImage = require("./routes/generateImage");
 const p2Video = require("./routes/p2Video");
@@ -47,7 +53,7 @@ app.get("/api/health", (req, res) => {
 });
 
 /* -------------------------------------------------------
-   エラー処理（必須）
+   エラー処理
 ------------------------------------------------------- */
 app.use((err, req, res, next) => {
   console.error("Server Error:", err);
