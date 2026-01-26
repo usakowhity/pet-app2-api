@@ -1,41 +1,60 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
+// server.js（pet-app2-api 完全版）
 
-import generateImageRoute from "./routes/generateImage.js";
-import p2VideoRoute from "./routes/p2Video.js";
-import videoStatusRoute from "./routes/videoStatus.js";
-
-dotenv.config();
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
 
 const app = express();
 
-// ★ GitHub Pages からのアクセスを許可
+/* -------------------------------------------------------
+   CORS（完全版）
+   - GitHub Pages からのアクセスを許可
+   - OPTIONS（プリフライト）も許可
+------------------------------------------------------- */
 app.use(
   cors({
-    origin: "https://usakowhity.github.io",
+    origin: "*", // 必要なら GitHub Pages の URL に限定してもOK
     methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// ★ プリフライト（OPTIONS）を必ず許可
+// プリフライト（OPTIONS）を確実に返す
 app.options("*", cors());
 
-app.use(express.json({ limit: "20mb" }));
+/* -------------------------------------------------------
+   JSON パース
+------------------------------------------------------- */
+app.use(express.json({ limit: "10mb" }));
 
-// 動作確認用
-app.get("/", (req, res) => {
-  res.json({ ok: true, message: "pet-app2 API is running" });
+/* -------------------------------------------------------
+   ルーティング
+   /api/... に統一
+------------------------------------------------------- */
+const generateImage = require("./routes/generateImage");
+const p2Video = require("./routes/p2Video");
+const videoStatus = require("./routes/videoStatus");
+
+app.use("/api/generate-image", generateImage);
+app.use("/api/generate-video", p2Video);
+app.use("/api/video-status", videoStatus);
+
+/* -------------------------------------------------------
+   動作確認用
+------------------------------------------------------- */
+app.get("/api/health", (req, res) => {
+  res.json({ ok: true, message: "API is running" });
 });
 
-// ルート登録
-app.use("/generate-image", generateImageRoute);
-app.use("/generate-video", p2VideoRoute);
-app.use("/video-status", videoStatusRoute);
-
-// サーバー起動
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`API server running on port ${PORT}`);
+/* -------------------------------------------------------
+   エラー処理（必須）
+------------------------------------------------------- */
+app.use((err, req, res, next) => {
+  console.error("Server Error:", err);
+  res.status(500).json({ ok: false, error: "Internal Server Error" });
 });
+
+/* -------------------------------------------------------
+   Vercel 用エクスポート
+------------------------------------------------------- */
+module.exports = app;
