@@ -10,7 +10,7 @@ dotenv.config();
 
 const app = express();
 
-// ★ CORS を GitHub Pages 専用に許可
+// ★ GitHub Pages からのアクセスを許可
 app.use(
   cors({
     origin: "https://usakowhity.github.io",
@@ -19,7 +19,7 @@ app.use(
   })
 );
 
-// ★ OPTIONS（プリフライト）を必ず許可
+// ★ プリフライト（OPTIONS）を必ず許可
 app.options("*", cors());
 
 app.use(express.json({ limit: "20mb" }));
