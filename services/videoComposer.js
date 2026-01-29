@@ -3,6 +3,7 @@ import { exec } from "child_process";
 import { promisify } from "util";
 import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
+import ffmpegPath from "ffmpeg-static";
 
 const execAsync = promisify(exec);
 
@@ -26,7 +27,7 @@ export async function composeVideo(n1Url, finalUrl) {
 
   // ffmpeg で 5秒 + 5秒 = 10秒動画を作成
   const cmd = `
-    ffmpeg -y \
+    ${ffmpegPath} -y \
       -loop 1 -t 5 -i ${n1Path} \
       -loop 1 -t 5 -i ${finalPath} \
       -filter_complex "[0:v][1:v]concat=n=2:v=1:a=0" \
