@@ -4,7 +4,7 @@ import express from "express";
 import cors from "cors";
 
 // ルート
-import generateImage from "./routes/generate-image.js";
+import generateImage from "./routes/generateImage.js";
 import generateVideo from "./routes/generate-video.js";
 
 const app = express();
