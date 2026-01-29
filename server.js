@@ -1,8 +1,11 @@
-// server.js（pet-app2-api 完全版）
+// server.js（pet-app2-api / ES Modules 完全最新版）
 
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
+import express from "express";
+import cors from "cors";
+
+// ルート
+import generateImage from "./routes/generate-image.js";
+import generateVideo from "./routes/generate-video.js";
 
 const app = express();
 
@@ -17,7 +20,7 @@ app.use(
   })
 );
 
-// ★ ここを追加（Vercel のプリフライト対策）
+// ★ Railway / Vercel のプリフライト対策
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
@@ -35,15 +38,10 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: "10mb" }));
 
 /* -------------------------------------------------------
-   ルーティング
+   ルーティング（安定版 API）
 ------------------------------------------------------- */
-const generateImage = require("./routes/generateImage");
-const p2Video = require("./routes/p2Video");
-const videoStatus = require("./routes/videoStatus");
-
 app.use("/api/generate-image", generateImage);
-app.use("/api/generate-video", p2Video);
-app.use("/api/video-status", videoStatus);
+app.use("/api/generate-video", generateVideo);
 
 /* -------------------------------------------------------
    動作確認用
@@ -61,6 +59,9 @@ app.use((err, req, res, next) => {
 });
 
 /* -------------------------------------------------------
-   Vercel 用エクスポート
+   サーバー起動（Railway 用）
 ------------------------------------------------------- */
-module.exports = app;
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`pet-app2-api running on port ${port}`);
+});
