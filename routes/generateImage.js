@@ -1,4 +1,4 @@
-// routes/generate-image.js
+// routes/generateImage.js
 import express from "express";
 import { runFal } from "../services/falai.js";
 import { saveUserModeAsset } from "../services/saveUserModeAsset.js";
